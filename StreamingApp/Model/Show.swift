@@ -8,7 +8,7 @@
 import Foundation
 
 // 主要影集模型
-struct Show: Codable {
+struct Show: Codable, Identifiable {
     let id: String
     let imdbId: String
     let tmdbId: String
@@ -80,8 +80,11 @@ extension PosterSet: ImageSizeProvider {
 }
 
 extension Show {
+    private static func generateRandomId() -> String {
+        return UUID().uuidString.prefix(8).lowercased()
+    }
     static let mock: Show = .init(
-        id: "12",
+        id: generateRandomId(),
         imdbId: "tt7366338",
         tmdbId: "tv/87108",
         title: "Chernobyl",
