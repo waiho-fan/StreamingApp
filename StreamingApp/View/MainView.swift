@@ -1,94 +1,174 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  StreamingApp
 //
-//  Created by Gary on 19/2/2025.
+//  Created by Gary on 21/2/2025.
 //
 
 import SwiftUI
 
 struct MainView: View {
-    let shows: [Show] = Array(repeating: .mock, count: 10)
-    @StateObject var viewModel: ShowViewModel = ShowViewModel(show: .mockLoadFromJsonFile)
-
-    let scrollViewWidth = UIScreen.main.bounds.width
-
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(1..<20) { num in
-                    GeometryReader { proxy in
-                        let midX = proxy.frame(in: .global).midX
-                        let rotation = calculateRotation(midX: midX, screenWidth: scrollViewWidth)
-                        
-                        // 計算縮放比例，讓中間的圖片略大一點
-                        let scale = calculateScale(midX: midX, screenWidth: scrollViewWidth)
-                        
-                        AsyncImage(url: URL(string: viewModel.getPosterURL() ?? "")) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .clipShape(RoundedRectangle(cornerRadius: 20.0))
-                                .rotation3DEffect(
-                                    .degrees(rotation),
-                                    axis: (x: 0, y: 1, z: 0)
-                                )
-                                .scaleEffect(scale) // 添加縮放效果
-                                .opacity(scale * 0.8 + 0.2) // 添加透明度變化
-                        } placeholder: {
-                            ProgressView()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // MARK: - Stream Everywhere
+                HStack {
+                    Text("Stream")
+                        .foregroundStyle(.red)
+                    Text("Everywhere")
+                        .foregroundStyle(.white)
+                }
+                .font(.largeTitle)
+                .bold()
+                .padding(.horizontal)
+                
+                // MARK: - Continue Watching Card
+                ContinueWatchingCard()
+                    .padding(.horizontal)
+                
+                // MARK: - Trending
+                Text("Trending")
+                    .font(.title)
+                    .bold()
+                    .foregroundStyle(.white)
+                    .padding(.horizontal)
+                
+                // MARK: - Trending Shows ScrollView
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(0..<5) { _ in
+                            TrendingShowCard()
                         }
-                        .padding(.horizontal)
-                        .shadow(radius: 5 * scale)
-                        .frame(width: 200, height: 300)
                     }
-                    .frame(width: 200, height: 300)
+                    .padding(.horizontal)
                 }
             }
-//            .padding()
-            .scrollTargetLayout()
+            .padding(.vertical)
         }
-        .frame(height: .infinity)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .padding()
-        .scrollTargetBehavior(.viewAligned)
-        .task {
-            await viewModel.loadShowData()
-        }
+        .background(Color.black)
     }
-    
-    func calculateRotation(midX: CGFloat, screenWidth: CGFloat) -> Double {
-        // 計算圖片中心點與螢幕中心的距離
-        let screenCenter = screenWidth / 2
-        let distanceFromCenter = midX - screenCenter
-        
-        // 設定最大旋轉角度
-        let maxRotation: Double = 45
-        
-        // 計算旋轉角度：
-        // - 當圖片在中間時，旋轉角度接近 0
-        // - 當圖片在左邊時，得到正角度（向右旋轉）
-        // - 當圖片在右邊時，得到負角度（向左旋轉）
-        let rotationAngle = -Double(distanceFromCenter / screenCenter) * maxRotation
-        
-        // 使用 min 和 max 限制旋轉角度範圍
-        return max(-maxRotation, min(maxRotation, rotationAngle))
-    }
-    
-    func calculateScale(midX: CGFloat, screenWidth: CGFloat) -> Double {
-        let screenCenter = screenWidth / 2
-        let distanceFromCenter = abs(midX - screenCenter)
-        let maxScale: Double = 1.1
-        let minScale: Double = 0.8
-        
-        // 距離中心越近，縮放比例越大
-        let scale = maxScale - (Double(distanceFromCenter) / Double(screenCenter)) * (maxScale - minScale)
-        return max(minScale, min(maxScale, scale))
-    }
+}
 
+// MARK: - Continue Watching Card 元件
+struct ContinueWatchingCard: View {
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // 背景圖片
+            Image("image-horizontal-mock")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+            
+            // 播放按鈕和標題
+//            HStack {
+//                Image(systemName: "play.circle.fill")
+//                    .font(.title2)
+//                    .foregroundStyle(.red)
+//                
+//                VStack(alignment: .leading) {
+//                    Text("Continue Watching")
+//                        .font(.subheadline)
+//                        .foregroundStyle(.gray)
+//                    Text("Ready Player one")
+//                        .font(.title3)
+//                        .bold()
+//                }
+//                
+//                Spacer()
+//            }
+//            .padding()
+//            .background(.ultraThinMaterial)
+//            .clipShape(RoundedRectangle(cornerRadius: 24))
+//            .padding(8)
+        }
+    }
+}
+
+// MARK: - Trending Show Card 元件
+struct TrendingShowCard: View {
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // 海報圖片
+            Image("image-vertical-mock")
+                .resizable()
+                .aspectRatio(2/3, contentMode: .fit)
+                .frame(width: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+                .shadow(radius: 8)
+
+            // IMDb 評分
+            HStack {
+                Image(systemName: "star.fill")
+                    .foregroundStyle(.yellow)
+                Text("7.0")
+                    .bold()
+            }
+            .padding(8)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(8)
+            .offset(x: -60, y: -100)
+            
+            // 電影標題
+            Text("Chernobyl")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+                .padding(8)
+        }
+    }
+}
+
+// MARK: - TabBar
+struct CustomTabBar: View {
+    var body: some View {
+        HStack {
+            Button(action: {}) {
+                VStack {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }
+                .foregroundStyle(.red)
+            }
+            
+            Spacer()
+            
+            Button(action: {}) {
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: 44))
+                    .foregroundStyle(.gray)
+            }
+            
+            Spacer()
+            
+            Button(action: {}) {
+                VStack {
+                    Image(systemName: "person.fill")
+                    Text("Profile")
+                }
+                .foregroundStyle(.gray)
+            }
+        }
+        .padding()
+        .background(.black)
+    }
+}
+
+// MARK: - 主視圖
+struct MainTrendingView: View {
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            MainView()
+            CustomTabBar()
+        }
+        .ignoresSafeArea(edges: .bottom)
+    }
 }
 
 #Preview {
-    MainView()
+    MainTrendingView()
 }

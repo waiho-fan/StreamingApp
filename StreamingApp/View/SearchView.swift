@@ -1,5 +1,5 @@
 //
-//  HistoryView.swift
+//  SearchView.swift
 //  StreamingApp
 //
 //  Created by Gary on 21/2/2025.
@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct HistoryView: View {
+struct SearchView: View {
     var body: some View {
-        Text("HistoryView")
+        Text("SearchView")
     }
 }
 
 #Preview {
-    HistoryView()
+    SearchView()
 }
