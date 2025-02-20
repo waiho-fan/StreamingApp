@@ -7,11 +7,14 @@
 
 import Foundation
 
+@MainActor
 class ShowViewModel: ObservableObject {
     @Published var show: Show
     @Published var selectedImageSize: Int = 480
     
-    init(show: Show) {
+    private let apiClient = ApiClient()
+    
+    init(show: Show, apiClietn: ApiClient = .init()) {
         self.show = show
     }
     
@@ -19,17 +22,22 @@ class ShowViewModel: ObservableObject {
         show.genres.map { $0.name }.joined(separator: ", ")
     }
     
-    var yearRange: String {
-        if show.firstAirYear == show.lastAirYear {
-            return "\(show.firstAirYear)"
-        }
-        return "\(show.firstAirYear)-\(show.lastAirYear)"
-    }
-    
     func getPosterURL(isVertical: Bool = true) -> String? {
         if isVertical {
             return show.imageSet.verticalPoster.getImageURL(for: selectedImageSize)
         }
         return show.imageSet.horizontalPoster.getImageURL(for: selectedImageSize)
+    }
+    
+    func loadDataFromJsonFile() {
+        show = Show.mockLoadFromJsonFile
+    }
+    
+    func loadShowData() async {
+        do {
+            show = try await apiClient.fetchShow()
+        } catch {
+            print("error fetching show data: \(error)")
+        }
     }
 }

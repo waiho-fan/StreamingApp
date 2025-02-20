@@ -14,15 +14,14 @@ struct Show: Codable {
     let tmdbId: String
     let title: String
     let overview: String
-    let firstAirYear: Int
-    let lastAirYear: Int
+    let releaseYear: Int
     let originalTitle: String
     let genres: [Genre]
-    let creators: [String]
+    let creators: [String]?
     let cast: [String]
     let rating: Int
-    let seasonCount: Int
-    let episodeCount: Int
+    let seasonCount: Int?
+    let episodeCount: Int?
     let imageSet: ImageSet
 }
 
@@ -87,19 +86,21 @@ extension Show {
         tmdbId: "tv/87108",
         title: "Chernobyl",
         overview: "Starring Jared Harris, Stellan Skarsgard and Emily Watson, 'Chernobyl' tells the story of the 1986 nuclear accident in this HBO Miniseries.",
-        firstAirYear: 2019,
-        lastAirYear: 2019,
+        releaseYear: 2019,
         originalTitle: "Chernobyl",
         genres: [
             Genre(id: "drama", name: "Drama"),
             Genre(id: "history", name: "History"),
             Genre(id: "thriller", name: "Thriller")
         ],
-        creators: ["Craig Mazin"],
+        creators: ["Craig Mazin", "Kyle Kuzma"],
         cast: ["Jared Harris", "Stellan Skarsgård", "Emily Watson"],
         rating: 90,
         seasonCount: 1,
         episodeCount: 5,
         imageSet: ImageSet(verticalPoster: PosterSet.mock, horizontalPoster: PosterSet.mock)
     )
+    
+    static let mockLoadFromJsonFile: Show = Bundle.main.decode("show.json")
+        
 }

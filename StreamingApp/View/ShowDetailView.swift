@@ -18,6 +18,7 @@ struct ShowDetailView: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 20.0))
                 } placeholder: {
                     ProgressView()
                 }
@@ -32,7 +33,8 @@ struct ShowDetailView: View {
                 }
                 
                 // 年份和集數資訊
-                Text("\(viewModel.yearRange) • \(viewModel.show.episodeCount) Episodes")
+                Text("\(viewModel.show.releaseYear) • \(viewModel.show.episodeCount) Episodes")
+//                Text("\(viewModel.show.releaseYear)")
                     .foregroundColor(.secondary)
                 
                 // 類型
