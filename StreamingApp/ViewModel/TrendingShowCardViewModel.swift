@@ -8,18 +8,18 @@
 import Foundation
 
 class TrendingShowCardViewModel: ObservableObject {
-    @Published var show: Show?
+    @Published var show: Show
     
     private let apiClient = ApiClient()
     
-    init(show: Show? = nil) {
+    init(show: Show) {
         self.show = show
     }
     
     func getPosterURL(imageSize: Int = 480, isVertical: Bool = true) -> String? {
         return isVertical
-        ? self.show?.imageSet.verticalPoster.getImageURL(for: imageSize)
-        : self.show?.imageSet.horizontalPoster.getImageURL(for: imageSize)
+        ? self.show.imageSet.verticalPoster.getImageURL(for: imageSize)
+        : self.show.imageSet.horizontalPoster.getImageURL(for: imageSize)
     }
     
     func loadMockData() {

@@ -1,19 +1,25 @@
 //
-//  MovieCardViewModel.swift
+//  ShowViewModel.swift
 //  StreamingApp
 //
-//  Created by Gary on 22/2/2025.
+//  Created by Gary on 19/2/2025.
 //
 
 import Foundation
 
-class MovieCardViewModel: ObservableObject {
-    private let searchViewModel: SearchViewModel
-    let show: Show
+@MainActor
+class ShowDetailViewModel: ObservableObject {
+    @Published var show: Show
+    @Published var selectedImageSize: Int = 480
     
-    init (searchViewModel: SearchViewModel, show: Show) {
-        self.searchViewModel = searchViewModel
+    private let apiClient = ApiClient()
+    
+    init(show: Show) {
         self.show = show
+    }
+    
+    var formattedGenres: String {
+        show.genres.map { $0.name }.joined(separator: ", ")
     }
     
     var formattedYear: String {
@@ -41,8 +47,22 @@ class MovieCardViewModel: ObservableObject {
         return formatter.string(from: date)
     }
     
-    var posterURL: String? {
-        searchViewModel.getPosterURL(for: show)
+    func getPosterURL(isVertical: Bool = true) -> String? {
+        if isVertical {
+            return show.imageSet.verticalPoster.getImageURL(for: selectedImageSize)
+        }
+        return show.imageSet.horizontalPoster.getImageURL(for: selectedImageSize)
     }
     
+    func loadMockData() {
+        show = Show.mockShowFromJsonFile
+    }
+    
+    func loadShowData() async {
+        do {
+            show = try await apiClient.fetchShow(imdbId: "tt0120338")
+        } catch {
+            print("error fetching show data: \(error)")
+        }
+    }
 }

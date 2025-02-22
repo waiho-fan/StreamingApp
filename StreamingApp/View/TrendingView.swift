@@ -49,7 +49,8 @@ struct TrendingView: View {
         }
         .background(Color.black)
         .task {
-            viewModel.loadMockData()
+//            viewModel.loadMockData()
+            await viewModel.loadTrendingShowsData()
         }
     }
 }
@@ -59,7 +60,7 @@ struct ContinueWatchingCard: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // 背景圖片
-            Image("image-horizontal-mock")
+            Image("image-horizontal-mock-02")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 200)
@@ -90,10 +91,11 @@ struct ContinueWatchingCard: View {
     }
 }
 
-// MARK: - Trending Show Card 元件
+// MARK: - Trending Show Card
 struct TrendingShowCard: View {
     @StateObject private var viewModel: TrendingShowCardViewModel
-    
+    @State private var showingDetail = false
+
     init(show: Show) {
         _viewModel = StateObject(
             wrappedValue: TrendingShowCardViewModel(show: show)
@@ -102,7 +104,7 @@ struct TrendingShowCard: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            // 海報圖片
+            // Image
             AsyncImage(url: URL(string: viewModel.getPosterURL() ?? "")) { image in
                 image
                     .resizable()
@@ -121,7 +123,7 @@ struct TrendingShowCard: View {
                     HStack {
                         Image(systemName: "star.fill")
                             .foregroundStyle(.yellow)
-                        Text("\(viewModel.show?.rating ?? 0)")
+                        Text("\(viewModel.show.rating)")
                             .bold()
                     }
                     .padding(8)
@@ -134,7 +136,7 @@ struct TrendingShowCard: View {
                 Spacer()
                 
                 // title
-                Text("\(viewModel.show?.title ?? "Not Given")")
+                Text("\(viewModel.show.title)")
                     .font(.headline)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
@@ -147,6 +149,14 @@ struct TrendingShowCard: View {
             .background(.clear)
         }
         .frame(width: 200, height: 300)
+        .onTapGesture {
+            showingDetail = true
+        }
+        .sheet(isPresented: $showingDetail) {
+            ShowDetailView(show: viewModel.show)
+                .presentationDragIndicator(.visible)
+                .presentationBackground(.clear)
+        }
     }
 }
 

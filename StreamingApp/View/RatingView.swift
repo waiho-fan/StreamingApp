@@ -15,10 +15,16 @@ struct RatingView: View {
             Image(systemName: "star.fill")
                 .foregroundColor(.yellow)
             Text("\(rating)%")
+                .foregroundStyle(.primary)
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.ultraThickMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
 #Preview {
     RatingView(rating: 50)
+        .preferredColorScheme(.dark)
 }

@@ -18,6 +18,8 @@ struct Show: Codable, Identifiable {
     let title: String
     let overview: String
     let releaseYear: Int?
+    let firstAirYear: Int?
+    let lastAirYear: Int?
     let originalTitle: String
     let genres: [Genre]
     let creators: [String]?
@@ -90,6 +92,8 @@ extension Show {
         title: "Chernobyl",
         overview: "Starring Jared Harris, Stellan Skarsgard and Emily Watson, 'Chernobyl' tells the story of the 1986 nuclear accident in this HBO Miniseries.",
         releaseYear: 2019,
+        firstAirYear: 2019,
+        lastAirYear: 2020,
         originalTitle: "Chernobyl",
         genres: [
             Genre(id: "drama", name: "Drama"),

@@ -20,7 +20,7 @@ struct CastSection: View {
                         Text(actor)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color.secondary.opacity(0.2))
+                            .background(Color.secondary.opacity(0.3))
                             .cornerRadius(8)
                     }
                 }
@@ -31,4 +31,6 @@ struct CastSection: View {
 
 #Preview {
     CastSection(cast: ["Cast1", "Cast2", "Cast3", "Cast4", "Cast5"])
+        .preferredColorScheme(.dark)
+
 }

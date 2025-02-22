@@ -8,52 +8,77 @@
 import SwiftUI
 
 struct ShowDetailView: View {
-    @StateObject var viewModel: ShowViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
+    
+    @StateObject var viewModel: ShowDetailViewModel
+    
+    init(show: Show) {
+        _viewModel = StateObject(wrappedValue: ShowDetailViewModel(show: show))
+    }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // 海報圖片
-                AsyncImage(url: URL(string: viewModel.getPosterURL() ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .clipShape(RoundedRectangle(cornerRadius: 20.0))
-                } placeholder: {
-                    ProgressView()
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Image
+                    AsyncImage(url: URL(string: viewModel.getPosterURL() ?? "")) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 20.0))
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Title, Rating
+                    HStack {
+                        Text(viewModel.show.title)
+                            .font(.title)
+                        Spacer()
+                        RatingView(rating: viewModel.show.rating)
+                    }
+                    
+                    // Year • Episode
+                    Text("\(viewModel.formattedYear) • \(viewModel.show.episodeCount ?? 0) Episodes")
+                        .foregroundColor(.secondary)
+                    
+                    // Genres
+                    Text(viewModel.formattedGenres)
+                        .font(.subheadline)
+                    
+                    // Overview
+                    Text(viewModel.show.overview)
+                        .padding(.top)
+                    
+                    // Cast
+                    CastSection(cast: viewModel.show.cast)
                 }
-                .frame(maxWidth: .infinity)
-                
-                // 標題和評分
-                HStack {
-                    Text(viewModel.show.title)
-                        .font(.title)
-                    Spacer()
-                    RatingView(rating: viewModel.show.rating)
-                }
-                
-                // 年份和集數資訊
-                Text("\(viewModel.show.releaseYear) • \(viewModel.show.episodeCount) Episodes")
-//                Text("\(viewModel.show.releaseYear)")
-                    .foregroundColor(.secondary)
-                
-                // 類型
-                Text(viewModel.formattedGenres)
-                    .font(.subheadline)
-                
-                // 概述
-                Text(viewModel.show.overview)
-                    .padding(.top)
-                
-                // 演員列表
-                CastSection(cast: viewModel.show.cast)
+                .padding()
             }
-            .padding()
+            .navigationTitle(viewModel.show.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.gray)
+                    }
+                }
+            }
+            .background(.black)
+            .foregroundStyle(.white)
         }
+        .preferredColorScheme(.dark)
+        .presentationBackground(.clear)
+        .background(.black)
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
 #Preview {
-    let viewModel = ShowViewModel(show: Show.mock)
-    ShowDetailView(viewModel: viewModel)
+    ShowDetailView(show: Show.mock)
 }

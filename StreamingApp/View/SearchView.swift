@@ -11,9 +11,6 @@ struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @State private var searchText = ""
     @State private var selectedCategory: ShowCategory = .movies
-    
-//    let shows: [Show] = Array(repeating: Show.mock, count: 10)
-//    let shows: [Show] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -87,6 +84,7 @@ struct SearchView: View {
 // MovieCard
 struct MovieCard: View {
     @StateObject private var viewModel: MovieCardViewModel
+    @State private var showingDetail: Bool = false
 
     init(searchViewModel: SearchViewModel, show: Show) {
         _viewModel = StateObject(
@@ -120,6 +118,14 @@ struct MovieCard: View {
                     .foregroundColor(.gray)
             }
             .padding(.vertical, 8)
+        }
+        .onTapGesture {
+            showingDetail = true
+        }
+        .sheet(isPresented: $showingDetail) {
+            ShowDetailView(show: viewModel.show)
+                .presentationDragIndicator(.visible)
+                .presentationBackground(.clear)
         }
     }
 }
