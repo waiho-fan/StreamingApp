@@ -7,37 +7,82 @@
 
 import Foundation
 
+enum APIError: Error {
+    case invalidURL
+    case invalidResponse
+    case decodeError(DecodingError)
+    case networkError(Error)
+    
+    var localizedDescription: String {
+        switch self {
+        case .invalidURL:
+            return "Invalid URL"
+        case .invalidResponse:
+            return "Invalid response format"
+        case .decodeError(let error):
+            return "Decoding error: \(error.localizedDescription)"
+        case .networkError(let error):
+            return "Network error: \(error.localizedDescription)"
+        }
+    }
+}
+
+enum APIEndpoint {
+    case show(imdbId: String)
+    case trendShows
+    
+    var path: String {
+        switch self {
+        case .show(imdbId: let imdbId):
+            return "/shows/\(imdbId)"
+        case .trendShows:
+            return "/shows/top"
+        }
+    }
+    
+    var queryItems: [URLQueryItem] {
+        switch self {
+        case .show:
+            return [
+                URLQueryItem(name: "series_granularity", value: "episode"),
+                URLQueryItem(name: "output_language", value: "en")
+            ]
+        case .trendShows:
+            return [
+                URLQueryItem(name: "country", value: "us"),
+                URLQueryItem(name: "service", value: "netflix")
+            ]
+        }
+    }
+}
+
 struct ApiClient {
+    private let session: URLSession
+    
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+    
     let headers = [
         "x-rapidapi-key": APIConfig.apiKey,
         "x-rapidapi-host": APIConfig.apiHost
     ]
     
-    enum APIError: Error {
-        case invalidResponse
-        case decodeError(DecodingError)
-        case networkError(Error)
-        
-        var localizedDescription: String {
-            switch self {
-            case .invalidResponse:
-                return "Invalid response format"
-            case .decodeError(let error):
-                return "Decoding error: \(error.localizedDescription)"
-            case .networkError(let error):
-                return "Network error: \(error.localizedDescription)"
-            }
-        }
-    }
-    
     func fetchShow(imdbId: String) async throws -> Show {
-        let request = NSMutableURLRequest(url: NSURL(string: "https://streaming-availability.p.rapidapi.com/shows/\(imdbId)?series_granularity=episode&output_language=en")! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+        var components = URLComponents(string: APIConfig.baseURL)
+        components?.path = APIEndpoint.show(imdbId: imdbId).path
+        components?.queryItems = APIEndpoint.show(imdbId: imdbId).queryItems
+        
+        guard let url = components?.url else {
+            throw APIError.invalidURL
+        }
+        
+        print("Fetching show from URL: \(url)")
+        
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
+        
         do {
             // Request
             let (data, response) = try await session.data(for: request as URLRequest)
@@ -71,13 +116,20 @@ struct ApiClient {
     }
     
     func fetchTrendShows() async throws -> [Show] {
-        let request = NSMutableURLRequest(url: NSURL(string: "https://streaming-availability.p.rapidapi.com/shows/top?country=us&service=netflix")! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+        var components = URLComponents(string: APIConfig.baseURL)
+        components?.path = APIEndpoint.trendShows.path
+        components?.queryItems = APIEndpoint.trendShows.queryItems
+        
+        guard let url = components?.url else {
+            throw APIError.invalidURL
+        }
+        
+        print("Fetching trend shows from: \(url)")
+        
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
+        
         do {
             // 3. 發送請求
             let (data, response) = try await session.data(for: request as URLRequest)
