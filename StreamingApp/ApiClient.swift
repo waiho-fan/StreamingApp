@@ -69,4 +69,8 @@ struct ApiClient {
             throw APIError.networkError(error)
         }
     }
+    
+    func fetchTrendShows() async throws -> [Show] {
+        return []
+    }
 }

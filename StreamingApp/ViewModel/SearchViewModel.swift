@@ -19,7 +19,6 @@ enum ShowCategory: String, CaseIterable {
 class SearchViewModel: ObservableObject {
     @Published var shows: [Show] = []
     @Published var filteredShows: [Show] = []
-    @Published var selectedImageSize: Int = 480
     @Published var selectedCategory: ShowCategory = .movies
     
     private let apiClient = ApiClient()
@@ -27,10 +26,6 @@ class SearchViewModel: ObservableObject {
     init(apiClient: ApiClient = .init()) {
 //        self.apiClient = apiClient
     }
-    
-//    var formattedGenres: String {
-//        show.genres.map { $0.name }.joined(separator: ", ")
-//    }
     
     func getPosterURL(for show: Show, imageSize: Int = 480, isVertical: Bool = true) -> String? {
         return isVertical ? show.imageSet.verticalPoster.getImageURL(for: imageSize) : show.imageSet.horizontalPoster.getImageURL(for: imageSize)
