@@ -7,14 +7,17 @@
 
 import Foundation
 
-// 主要影集模型
+struct ShowResponse: Codable {
+    let shows: [Show]
+}
+
 struct Show: Codable, Identifiable {
     let id: String
     let imdbId: String
     let tmdbId: String
     let title: String
     let overview: String
-    let releaseYear: Int
+    let releaseYear: Int?
     let originalTitle: String
     let genres: [Genre]
     let creators: [String]?
@@ -25,13 +28,11 @@ struct Show: Codable, Identifiable {
     let imageSet: ImageSet
 }
 
-// 類型模型
 struct Genre: Codable {
     let id: String
     let name: String
 }
 
-// 圖片集合模型
 struct ImageSet: Codable {
     let verticalPoster: PosterSet
     let horizontalPoster: PosterSet
@@ -40,7 +41,6 @@ struct ImageSet: Codable {
     
 }
 
-// 海報尺寸集合
 struct PosterSet: Codable {
     let w240: String?
     let w360: String?
@@ -104,6 +104,11 @@ extension Show {
         imageSet: ImageSet(verticalPoster: PosterSet.mock, horizontalPoster: PosterSet.mock)
     )
     
-    static let mockLoadFromJsonFile: Show = Bundle.main.decode("show.json")
+    static let mockShowFromJsonFile: Show = Bundle.main.decode("show.json")
+    
+    static var mockShowsFromJsonFile: [Show] {
+        let response: ShowResponse = Bundle.main.decode("shows.json")
+        return response.shows
+    }
         
 }

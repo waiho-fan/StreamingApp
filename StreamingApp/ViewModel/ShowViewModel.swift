@@ -29,8 +29,8 @@ class ShowViewModel: ObservableObject {
         return show.imageSet.horizontalPoster.getImageURL(for: selectedImageSize)
     }
     
-    func loadDataFromJsonFile() {
-        show = Show.mockLoadFromJsonFile
+    func loadMockData() {
+        show = Show.mockShowFromJsonFile
     }
     
     func loadShowData() async {

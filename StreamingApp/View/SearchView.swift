@@ -8,18 +8,12 @@
 import SwiftUI
 
 struct SearchView: View {
+    @StateObject private var viewModel = SearchViewModel()
     @State private var searchText = ""
-    @State private var selectedCategory: Category = .movies
+    @State private var selectedCategory: ShowCategory = .movies
     
-    // Category
-    enum Category: String, CaseIterable {
-        case movies = "Movies"
-        case tvSeries = "Tv Series"
-        case documentary = "Documentary"
-        case sports = "Sports"
-    }
-    
-    let shows: [Show] = Array(repeating: Show.mock, count: 10)
+//    let shows: [Show] = Array(repeating: Show.mock, count: 10)
+//    let shows: [Show] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -45,7 +39,7 @@ struct SearchView: View {
             // Category Selection
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 24) {
-                    ForEach(Category.allCases, id: \.self) { category in
+                    ForEach(ShowCategory.allCases, id: \.self) { category in
                         VStack {
                             Text(category.rawValue)
                                 .foregroundColor(selectedCategory == category ? .red : .white)
@@ -72,8 +66,8 @@ struct SearchView: View {
                     GridItem(.flexible(), spacing: 16),
                     GridItem(.flexible(), spacing: 16)
                 ], spacing: 16) {
-                    ForEach(0..<shows.count, id: \.self) { index in
-                        MovieCard(show: shows[index])
+                    ForEach(0..<viewModel.shows.count, id: \.self) { index in
+                        MovieCard(searchViewModel: viewModel, show: viewModel.shows[index])
                     }
                 }
                 .padding(.horizontal)
@@ -81,27 +75,46 @@ struct SearchView: View {
         }
         .background(Color.black)
         .foregroundColor(.white)
+        .onAppear {
+            viewModel.loadMockData()
+        }
+        .task {
+//            viewModel.loadShowData()
+        }
     }
 }
 
 // MovieCard
 struct MovieCard: View {
-    let show: Show
-    
+    @StateObject private var viewModel: MovieCardViewModel
+
+    init(searchViewModel: SearchViewModel, show: Show) {
+        _viewModel = StateObject(
+            wrappedValue: MovieCardViewModel(
+                searchViewModel: searchViewModel,
+                show: show
+            )
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             // Image
-            Image("image-vertical-mock")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            AsyncImage(url: URL(string: viewModel.posterURL ?? "")) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            } placeholder: {
+                ProgressView()
+            }
             
             // Info
             VStack(alignment: .leading, spacing: 4) {
-                Text(show.title)
+                Text(viewModel.show.title)
                     .font(.headline)
-                Text("\(show.releaseYear)")
+                Text("\(viewModel.show.releaseYear ?? 1970)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
