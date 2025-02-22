@@ -109,12 +109,13 @@ struct MovieCard: View {
             } placeholder: {
                 ProgressView()
             }
+            .frame(height: 200)
             
             // Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.show.title)
                     .font(.headline)
-                Text("\(viewModel.show.releaseYear ?? 1970)")
+                Text("\(viewModel.formattedYear)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
