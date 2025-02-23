@@ -16,7 +16,7 @@ class TrendingShowCardViewModel: ObservableObject {
         self.show = show
     }
     
-    func getPosterURL(imageSize: Int = 480, isVertical: Bool = true) -> String? {
+    func getPosterURL(imageSize: Int = 720, isVertical: Bool = true) -> String? {
         return isVertical
         ? self.show.imageSet.verticalPoster.getImageURL(for: imageSize)
         : self.show.imageSet.horizontalPoster.getImageURL(for: imageSize)

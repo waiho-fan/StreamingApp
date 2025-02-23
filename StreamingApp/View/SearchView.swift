@@ -77,7 +77,8 @@ struct SearchView: View {
 //            print(">>> selectedCategory: \(oldValue) -> \(newValue) ")
 //        }
         .task {
-            await viewModel.loadShowDataForFilter()
+            viewModel.loadMockData()
+//            await viewModel.loadShowDataForFilter()
         }
     }
 }
@@ -114,12 +115,17 @@ struct MovieCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.show.title)
                     .font(.headline)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .frame(height: 50)
                 Text("\(viewModel.formattedYear)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
         }
+        .frame(width: UIScreen.main.bounds.width / 2 - 24)
         .onTapGesture {
             showingDetail = true
         }
@@ -133,4 +139,5 @@ struct MovieCard: View {
 
 #Preview {
     SearchView()
+        .environmentObject(HistoryViewModel())
 }

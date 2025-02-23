@@ -10,6 +10,7 @@ import SwiftUI
 struct ShowDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var historyViewModel: HistoryViewModel
     
     @StateObject var viewModel: ShowDetailViewModel
     
@@ -69,16 +70,21 @@ struct ShowDetailView: View {
                     }
                 }
             }
+            .onAppear {
+                historyViewModel.adddToHistory(viewModel.show)
+            }
             .background(.black)
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
         }
         .preferredColorScheme(.dark)
         .presentationBackground(.clear)
         .background(.black)
-        .edgesIgnoringSafeArea(.all)
+        .foregroundStyle(.primary)
+//        .edgesIgnoringSafeArea(.all)
     }
 }
 
 #Preview {
     ShowDetailView(show: Show.mock)
+        .environmentObject(HistoryViewModel())
 }

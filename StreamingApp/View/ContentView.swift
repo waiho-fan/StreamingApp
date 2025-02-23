@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var historyViewModel = HistoryViewModel()
+    
     var body: some View {
         TabView {
             TrendingView()
@@ -26,6 +28,7 @@ struct ContentView: View {
                     Text("History")
                 }
         }
+        .environmentObject(historyViewModel)
         .onAppear {
             // Set unselected color
             let appearance = UITabBarAppearance()

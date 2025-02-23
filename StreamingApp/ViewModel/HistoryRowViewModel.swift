@@ -1,24 +1,24 @@
 //
-//  ShowViewModel.swift
+//  HistoryRowViewModel.swift
 //  StreamingApp
 //
-//  Created by Gary on 19/2/2025.
+//  Created by Gary on 24/2/2025.
 //
 
 import Foundation
 
 @MainActor
-class ShowDetailViewModel: ObservableObject {
-    @Published var show: Show
-    
-    private let apiClient = ApiClient()
+class HistoryRowViewModel: ObservableObject{
+    let show: Show
     
     init(show: Show) {
         self.show = show
     }
     
-    var formattedGenres: String {
-        show.genres.map { $0.name }.joined(separator: ", ")
+    func getPosterURL(imageSize: Int = 720, isVertical: Bool = true) -> String? {
+        return isVertical
+        ? self.show.imageSet.verticalPoster.getImageURL(for: imageSize)
+        : self.show.imageSet.horizontalPoster.getImageURL(for: imageSize)
     }
     
     var formattedYear: String {
@@ -44,24 +44,5 @@ class ShowDetailViewModel: ObservableObject {
         formatter.dateFormat = "yyyy"
         
         return formatter.string(from: date)
-    }
-    
-    func getPosterURL(isVertical: Bool = true, imageSize: Int = 720) -> String? {
-        if isVertical {
-            return show.imageSet.verticalPoster.getImageURL(for: imageSize)
-        }
-        return show.imageSet.horizontalPoster.getImageURL(for: imageSize)
-    }
-    
-    func loadMockData() {
-        show = Show.mockShowFromJsonFile
-    }
-    
-    func loadShowData() async {
-        do {
-            show = try await apiClient.fetchShow(imdbId: "tt0120338")
-        } catch {
-            print("error fetching show data: \(error)")
-        }
     }
 }
