@@ -39,7 +39,7 @@ class SearchViewModel: ObservableObject {
     
     func loadShowData() async {
         do {
-//            show = try await apiClient.fetchShow()
+            shows = try await apiClient.fetchShowsBySearchFilter(country: "hk", catalogs: ["netflix"], keyword: "", showType: "movie")
         } catch {
             print("error fetching show data: \(error)")
         }

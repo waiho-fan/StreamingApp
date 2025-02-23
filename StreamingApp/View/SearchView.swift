@@ -72,11 +72,8 @@ struct SearchView: View {
         }
         .background(Color.black)
         .foregroundColor(.white)
-        .onAppear {
-            viewModel.loadMockData()
-        }
         .task {
-//            viewModel.loadShowData()
+            await viewModel.loadShowData()
         }
     }
 }

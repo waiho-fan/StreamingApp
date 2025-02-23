@@ -124,6 +124,7 @@ struct ApiClient {
         "x-rapidapi-host": APIConfig.apiHost
     ]
     
+    // MARK: API Request
     func fetchShow(imdbId: String) async throws -> Show {
         // 1. Create URL
         var components = URLComponents(string: APIConfig.baseURL)
@@ -258,9 +259,9 @@ struct ApiClient {
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             
             do {
-                let shows = try decoder.decode([Show].self, from: data)
-                print("Successfully decoded shows - count \(shows.count)")
-                return shows
+                let showResponse: ShowResponse = try decoder.decode(ShowResponse.self, from: data)
+                print("Successfully decoded shows - count \(showResponse.shows.count)")
+                return showResponse.shows
             } catch let decodingError as DecodingError {
                 throw APIError.decodeError(decodingError)
             }
