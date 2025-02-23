@@ -10,7 +10,6 @@ import SwiftUI
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @State private var searchText = ""
-    @State private var selectedCategory: ShowCategory = .all
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -26,7 +25,9 @@ struct SearchView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
-                TextField("Sherlock Holmes", text: $searchText)
+                TextField("Sherlock Holmes", text: $viewModel.searchText)
+                    .foregroundStyle(.black)
+                    
             }
             .padding()
             .background(Color(.systemGray6))
@@ -76,7 +77,7 @@ struct SearchView: View {
 //            print(">>> selectedCategory: \(oldValue) -> \(newValue) ")
 //        }
         .task {
-            await viewModel.loadShowData()
+            await viewModel.loadShowDataForFilter()
         }
     }
 }
@@ -87,7 +88,6 @@ struct MovieCard: View {
     @State private var showingDetail: Bool = false
 
     init(searchViewModel: SearchViewModel, show: Show) {
-        print("Show.title: \(show.title)")
         _viewModel = StateObject(
             wrappedValue: MovieCardViewModel(
                 searchViewModel: searchViewModel,

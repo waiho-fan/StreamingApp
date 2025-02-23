@@ -33,10 +33,17 @@ class SearchViewModel: ObservableObject {
 
     @Published var shows: [Show] = []
     @Published var filteredShows: [Show] = []
+    @Published var searchText = "" {
+        didSet {
+            Task {
+                await loadShowDataForTitle(title: searchText, category: selectedCategory)
+            }
+        }
+    }
     @Published var selectedCategory: ShowCategory = .all {
         didSet {
             Task {
-                await loadShowData(for: selectedCategory)
+                await loadShowDataForFilter(keyword: searchText, category: selectedCategory)
             }
         }
     }
@@ -55,12 +62,25 @@ class SearchViewModel: ObservableObject {
         filteredShows = shows
     }
     
-    func loadShowData(for category: ShowCategory = .all) async {
+    func loadShowDataForFilter(keyword: String = "", category: ShowCategory = .all) async {
         do {
             let fetchedShows = try await apiClient.fetchShowsBySearchFilter(
                 country: "hk",
                 catalogs: ["netflix"],
-                keyword: "",
+                keyword: keyword,
+                showType: category.showType
+            )
+            
+            self.shows = fetchedShows
+        } catch {
+            print("error fetching show data: \(error)")
+        }
+    }
+    
+    func loadShowDataForTitle(title: String, category: ShowCategory = .all) async {
+        do {
+            let fetchedShows = try await apiClient.fetchShowsBySearchTitle(
+                title: title,
                 showType: category.showType
             )
             

@@ -31,7 +31,7 @@ enum APIEndpoint {
     case show(imdbId: String)
     case trendShows
     case showSearchFilter(country: String = "us", catalogs: [String], keyword: String, showType: String = "movie")
-    case showSearchTitle(title: String)
+    case showSearchTitle(title: String, showType: String = "")
     case countries
     case country(countryCode: String)
     case genres
@@ -87,10 +87,17 @@ enum APIEndpoint {
             }
             
             return queryItems
-        case .showSearchTitle(title: let title):
-            return [
-                URLQueryItem(name: "title", value: title)
+        case .showSearchTitle(let title, let showType):
+            var queryItems = [
+                URLQueryItem(name: "title", value: title),
+                URLQueryItem(name: "country", value: "hk")
             ]
+            
+            if !showType.isEmpty {
+                queryItems.append(URLQueryItem(name: "show_type", value: showType))
+            }
+            
+            return queryItems
         case .countries:
             return [
                 URLQueryItem(name: "output_language", value: "en")
@@ -277,11 +284,11 @@ struct ApiClient {
         }
     }
     
-    func fetchShowsBySearchTitle(title: String) async throws -> [Show] {
+    func fetchShowsBySearchTitle(title: String, showType: String) async throws -> [Show] {
         // 1. Create URL
         var components = URLComponents(string: APIConfig.baseURL)
-        components?.path = APIEndpoint.showSearchTitle(title: title).path
-        components?.queryItems = APIEndpoint.showSearchTitle(title: title).queryItems
+        components?.path = APIEndpoint.showSearchTitle(title: title, showType: showType).path
+        components?.queryItems = APIEndpoint.showSearchTitle(title: title, showType: showType).queryItems
         
         guard let url = components?.url else {
             throw APIError.invalidURL
