@@ -10,7 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @State private var searchText = ""
-    @State private var selectedCategory: ShowCategory = .movies
+    @State private var selectedCategory: ShowCategory = .all
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -39,9 +39,9 @@ struct SearchView: View {
                     ForEach(ShowCategory.allCases, id: \.self) { category in
                         VStack {
                             Text(category.rawValue)
-                                .foregroundColor(selectedCategory == category ? .red : .white)
+                                .foregroundColor(viewModel.selectedCategory == category ? .red : .white)
                             
-                            if selectedCategory == category {
+                            if viewModel.selectedCategory == category {
                                 Rectangle()
                                     .frame(height: 2)
                                     .foregroundColor(.red)
@@ -49,7 +49,7 @@ struct SearchView: View {
                         }
                         .onTapGesture {
                             withAnimation {
-                                selectedCategory = category
+                                viewModel.selectedCategory = category
                             }
                         }
                     }
@@ -63,8 +63,8 @@ struct SearchView: View {
                     GridItem(.flexible(), spacing: 16),
                     GridItem(.flexible(), spacing: 16)
                 ], spacing: 16) {
-                    ForEach(0..<viewModel.shows.count, id: \.self) { index in
-                        MovieCard(searchViewModel: viewModel, show: viewModel.shows[index])
+                    ForEach(viewModel.shows) { show in
+                        MovieCard(searchViewModel: viewModel, show: show)
                     }
                 }
                 .padding(.horizontal)
@@ -72,6 +72,9 @@ struct SearchView: View {
         }
         .background(Color.black)
         .foregroundColor(.white)
+//        .onChange(of: viewModel.selectedCategory) { oldValue, newValue in
+//            print(">>> selectedCategory: \(oldValue) -> \(newValue) ")
+//        }
         .task {
             await viewModel.loadShowData()
         }
@@ -84,6 +87,7 @@ struct MovieCard: View {
     @State private var showingDetail: Bool = false
 
     init(searchViewModel: SearchViewModel, show: Show) {
+        print("Show.title: \(show.title)")
         _viewModel = StateObject(
             wrappedValue: MovieCardViewModel(
                 searchViewModel: searchViewModel,

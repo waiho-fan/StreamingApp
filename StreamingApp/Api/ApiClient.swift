@@ -71,17 +71,22 @@ enum APIEndpoint {
                 URLQueryItem(name: "service", value: "netflix")
             ]
         case .showSearchFilter(let country, let catelog, let keyword, let showType):
-            return [
+            var queryItems = [
                 URLQueryItem(name: "country", value: country),
                 URLQueryItem(name: "catalogs", value: catelog.joined(separator: ",")),
                 URLQueryItem(name: "keyword", value: keyword),
-                URLQueryItem(name: "show_type", value: showType),
                 URLQueryItem(name: "series_granularity", value: "show"),
                 URLQueryItem(name: "order_direction", value: "asc"),
                 URLQueryItem(name: "order_by", value: "original_title"),
                 URLQueryItem(name: "genres_relation", value: "and"),
                 URLQueryItem(name: "output_language", value: "en")
             ]
+            
+            if !showType.isEmpty {
+                queryItems.append(URLQueryItem(name: "show_type", value: showType))
+            }
+            
+            return queryItems
         case .showSearchTitle(title: let title):
             return [
                 URLQueryItem(name: "title", value: title)
