@@ -57,7 +57,14 @@ class SearchViewModel: ObservableObject {
     
     func loadShowData(for category: ShowCategory = .all) async {
         do {
-            shows = try await apiClient.fetchShowsBySearchFilter(country: "hk", catalogs: ["netflix"], keyword: "", showType: "movie")
+            let fetchedShows = try await apiClient.fetchShowsBySearchFilter(
+                country: "hk",
+                catalogs: ["netflix"],
+                keyword: "",
+                showType: category.showType
+            )
+            
+            self.shows = fetchedShows
         } catch {
             print("error fetching show data: \(error)")
         }
