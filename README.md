@@ -4,7 +4,21 @@ A modern iOS streaming content browser built with SwiftUI, demonstrating clean M
 
 ## Overview
 
-StreamingApp is a showcase application that implements core features of a streaming platform's browsing experience. Built with SwiftUI and following the MVVM (Model-View-ViewModel) architectural pattern, it demonstrates how to create a maintainable and scalable iOS application while incorporating modern iOS development practices.
+StreamingApp is a showcase application that implements core features of a streaming platform's browsing experience. Built with SwiftUI and following the MVVM architectural pattern, it demonstrates how to create a maintainable and scalable iOS application while incorporating modern iOS development practices.
+
+## Screenshot
+
+<img src="/StreamingApp/Screenshot/demo.gif" width="300" alt="Demo" />
+<div align="left">
+  <p float="left">
+    <img src="/StreamingApp/Screenshot/trending.png" width="300" alt="Trending.png" />
+    <img src="/StreamingApp/Screenshot/show-detail.png" width="300" alt="Show Detail" />
+    <img src="/StreamingApp/Screenshot/search.png" width="300" alt="Search" />
+    <img src="/StreamingApp/Screenshot/search-filter.png" width="300" alt="Search Filter" />
+    <img src="/StreamingApp/Screenshot/history.png" width="300" alt="History" />
+    <img src="/StreamingApp/Screenshot/history-search.png" width="300" alt="History Search" />
+  </p>
+</div>
 
 ## Key Features
 
@@ -30,8 +44,7 @@ The application follows MVVM architecture with these key components:
 - **Views**: SwiftUI views handling the UI presentation
 - **ViewModels**: Managing UI logic and data transformation
 - **Models**: Core data structures representing content
-- **Services**: Handling API communication and data persistence
-- **Repositories**: Abstracting data sources and business logic
+- **ApiClient**: Handling API communication and data persistence
 
 ## Getting Started
 
@@ -47,8 +60,7 @@ The application follows MVVM architecture with these key components:
 
 ## Future Enhancements
 
-- Search functionality
-- Content filtering
 - Offline support
-- Watchlist management
 - Playback integration
+- Video Play
+- Account management
