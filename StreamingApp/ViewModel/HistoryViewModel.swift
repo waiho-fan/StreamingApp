@@ -13,8 +13,24 @@ class HistoryViewModel: ObservableObject {
     private let historyKey = "WatchHistory"
     @Published var isEditing: Bool = false
     
+    @Published var filteredHistory: [Show] = []
+    @Published var sortOption: SortOption = .title
+    @Published var filterOption: FilterOption = .all
+    
     init() {
         loadHistory()
+    }
+    
+    enum SortOption {
+        case title
+        case year
+    }
+    
+    enum FilterOption {
+        case all
+        case thisYear
+        case lastYear
+        case custom(String)
     }
     
     //MARK: - Public
@@ -48,6 +64,7 @@ class HistoryViewModel: ObservableObject {
         if let savedData = userDefaults.data(forKey: historyKey) {
             if let history = try? JSONDecoder().decode([Show].self, from: savedData) {
                 watchHistory = history
+                filteredHistory = watchHistory
             }
         }
     }
@@ -56,5 +73,61 @@ class HistoryViewModel: ObservableObject {
         if let savedData = try? JSONEncoder().encode(watchHistory) {
             userDefaults.set(savedData, forKey: historyKey)
         }
+    }
+}
+
+extension HistoryViewModel {
+    func applyFilterAndSort() {
+        var result = filterHistory()
+        
+        sortHistory(&result)
+        
+        filteredHistory = result
+    }
+    
+    private func filterHistory() -> [Show] {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        
+        return watchHistory.filter { show in
+            switch filterOption {
+            case .all:
+                return true
+            case .thisYear:
+                return show.releaseYear == currentYear
+            case .lastYear:
+                return show.releaseYear == currentYear - 1
+            case .custom(let searchText):
+                return show.title.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
+    
+    private func sortHistory(_ shows: inout [Show]) {
+        switch sortOption {
+        case .title:
+            return shows.sort { $0.title < $1.title }
+        case .year:
+            return shows.sort { $0.releaseYear ?? 1970 > $1.releaseYear ?? 1970 }
+        }
+    }
+    
+    func setSortOption(_ option: SortOption) {
+        sortOption = option
+        applyFilterAndSort()
+    }
+    
+    func setFilterOption(_ option: FilterOption) {
+        filterOption = option
+        applyFilterAndSort()
+    }
+    
+    func search(with text: String) {
+        if text.isEmpty {
+            filterOption = .all
+        } else {
+            filterOption = .custom(text)
+        }
+        applyFilterAndSort()
     }
 }

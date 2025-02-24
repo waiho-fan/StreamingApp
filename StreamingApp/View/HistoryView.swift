@@ -11,6 +11,7 @@ struct HistoryView: View {
     @EnvironmentObject private var viewModel: HistoryViewModel
     @State private var showingAlert: Bool = false
     @Environment(\.editMode) private var editMode
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -21,55 +22,75 @@ struct HistoryView: View {
                         .foregroundStyle(.secondary)
                 }
             } else {
-                List {
-                    ForEach(viewModel.watchHistory) { show in
-                        if editMode?.wrappedValue.isEditing == true {
-                            HistoryRow(show: show)
-                        } else {
-                            NavigationLink {
-                                ShowDetailView(show: show)
-                            } label: {
+                VStack {
+                    Picker("Sort By", selection: $viewModel.sortOption) {
+                        Text("Title").tag(HistoryViewModel.SortOption.title)
+                        Text("Year").tag(HistoryViewModel.SortOption.year)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding()
+                    .onChange(of: viewModel.sortOption) {
+                        viewModel.applyFilterAndSort()
+                    }
+                    
+                    List {
+                        ForEach(viewModel.filteredHistory) { show in
+                            if editMode?.wrappedValue.isEditing == true {
                                 HistoryRow(show: show)
+                            } else {
+                                NavigationLink {
+                                    ShowDetailView(show: show)
+                                } label: {
+                                    HistoryRow(show: show)
+                                }
                             }
                         }
-                    }
-                    .onDelete { indexSet in
-                        viewModel.deleteShows(at: indexSet)
-                    }
-                    .onMove { (source, destination) in
-                        viewModel.watchHistory.move(fromOffsets: source, toOffset: destination)
-                        viewModel.saveHistory()
-                    }
-                }
-                .listRowSpacing(10)
-                
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            showingAlert = true
-                        } label: {
-                            Image(systemName: "trash")
+                        .onDelete { indexSet in
+                            viewModel.deleteShows(at: indexSet)
                         }
-                        .disabled(viewModel.watchHistory.isEmpty)
+                        .onMove { (source, destination) in
+                            viewModel.watchHistory.move(fromOffsets: source, toOffset: destination)
+                            viewModel.saveHistory()
+                        }
                     }
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        EditButton()
+                    .listRowSpacing(10)
+                    .listStyle(.plain)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showingAlert = true
+                            } label: {
+                                Image(systemName: "trash")
+                            }
                             .disabled(viewModel.watchHistory.isEmpty)
+                        }
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            EditButton()
+                                .disabled(viewModel.watchHistory.isEmpty)
+                        }
                     }
-                }
-                .foregroundStyle(.primary)
-                .alert("Clear History", isPresented: $showingAlert) {
-                    Button("Cancel", role: .cancel) {}
-                    Button("Clear", role: .destructive) {
-                        viewModel.clearHistory()
+                    .foregroundStyle(.primary)
+                    .alert("Clear History", isPresented: $showingAlert) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Clear", role: .destructive) {
+                            viewModel.clearHistory()
+                        }
+                    } message: {
+                        Text("Are you sure you want to clear your watch history?")
                     }
-                } message: {
-                    Text("Are you sure you want to clear your watch history?")
                 }
             }
         }
         .preferredColorScheme(.dark)
         .background(.black)
+        .searchable(text: $searchText) {
+            if searchText.isEmpty {
+                Text("No results found")
+            }
+        }
+        .onChange(of: searchText) { _ , newValue in
+            viewModel.search(with: newValue)
+        }
     }
 }
 
