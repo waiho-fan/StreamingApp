@@ -11,7 +11,6 @@ struct HistoryView: View {
     @EnvironmentObject private var viewModel: HistoryViewModel
     @State private var showingAlert: Bool = false
     @Environment(\.editMode) private var editMode
-    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -23,15 +22,30 @@ struct HistoryView: View {
                 }
             } else {
                 VStack {
-                    Picker("Sort By", selection: $viewModel.sortOption) {
-                        Text("Title").tag(HistoryViewModel.SortOption.title)
-                        Text("Year").tag(HistoryViewModel.SortOption.year)
+                    // Category Selection
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 60) {
+                            ForEach(HistoryViewModel.SortOption.allCases, id: \.self) { option in
+                                VStack {
+                                    Text(option.stringValue)
+                                        .foregroundColor(viewModel.sortOption == option ? .red : .white)
+                                        .fontWeight(viewModel.sortOption == option ? .bold : .regular)
+                                    
+                                    if viewModel.sortOption == option {
+                                        Rectangle()
+                                            .frame(height: 2)
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                                .onTapGesture {
+                                    withAnimation {
+                                        viewModel.sortOption = option
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .pickerStyle(.segmented)
-                    .padding()
-                    .onChange(of: viewModel.sortOption) {
-                        viewModel.applyFilterAndSort()
-                    }
+                    .padding(.horizontal, 30)
                     
                     List {
                         ForEach(viewModel.filteredHistory) { show in
@@ -83,12 +97,15 @@ struct HistoryView: View {
         }
         .preferredColorScheme(.dark)
         .background(.black)
-        .searchable(text: $searchText) {
-            if searchText.isEmpty {
+        .searchable(text: $viewModel.searchText) {
+            if viewModel.searchText.isEmpty {
                 Text("No results found")
             }
         }
-        .onChange(of: searchText) { _ , newValue in
+        .onAppear {
+            viewModel.loadHistory()
+        }
+        .onChange(of: viewModel.searchText) { _ , newValue in
             viewModel.search(with: newValue)
         }
     }

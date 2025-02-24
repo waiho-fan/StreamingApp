@@ -60,7 +60,18 @@ struct ShowDetailView: View {
             }
             .navigationTitle(viewModel.show.title)
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                        }
+                        .foregroundColor(.white)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         dismiss()

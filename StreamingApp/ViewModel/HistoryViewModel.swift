@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 class HistoryViewModel: ObservableObject {
     @Published var watchHistory: [Show] = []
@@ -14,16 +15,37 @@ class HistoryViewModel: ObservableObject {
     @Published var isEditing: Bool = false
     
     @Published var filteredHistory: [Show] = []
-    @Published var sortOption: SortOption = .title
-    @Published var filterOption: FilterOption = .all
+    @Published var sortOption: SortOption = .dateAdded {
+        didSet {
+            applyFilterAndSort()
+        }
+    }
+    @Published var filterOption: FilterOption = .all {
+        didSet {
+            applyFilterAndSort()
+        }
+    }
+    @Published var searchText: String = ""
     
     init() {
         loadHistory()
     }
     
-    enum SortOption {
+    enum SortOption: String, CaseIterable  {
+        case dateAdded
         case title
         case year
+        
+        var stringValue: String {
+            switch self {
+            case .dateAdded:
+                return "Date Added"
+            case .title:
+                return "Title"
+            case .year:
+                return "Year"
+            }
+        }
     }
     
     enum FilterOption {
@@ -47,17 +69,27 @@ class HistoryViewModel: ObservableObject {
     }
     
     func deleteShow(_ show: Show) {
-        watchHistory.removeAll { $0.id == show.id }
-        saveHistory()
+        withAnimation {
+            watchHistory.removeAll { $0.id == show.id }
+            filteredHistory.removeAll { $0.id == show.id }
+            
+            saveHistory()
+            applyFilterAndSort()
+        }
     }
     
     func deleteShows(at offsets: IndexSet) {
-        watchHistory.remove(atOffsets: offsets)
+        let showsToDelete = offsets.map { watchHistory[$0] }
+        
+        for show in showsToDelete {
+            watchHistory.remove(atOffsets: offsets)
+            filteredHistory.removeAll { $0.id == show.id }
+        }
         saveHistory()
     }
     
     //MARK: - Private
-    private func loadHistory() {
+    func loadHistory() {
         print("Loading history...")
 //        watchHistory = Show.mockShowsFromJsonFile
         
@@ -65,6 +97,8 @@ class HistoryViewModel: ObservableObject {
             if let history = try? JSONDecoder().decode([Show].self, from: savedData) {
                 watchHistory = history
                 filteredHistory = watchHistory
+                
+                applyFilterAndSort()
             }
         }
     }
@@ -108,7 +142,13 @@ extension HistoryViewModel {
         case .title:
             return shows.sort { $0.title < $1.title }
         case .year:
-            return shows.sort { $0.releaseYear ?? 1970 > $1.releaseYear ?? 1970 }
+            return shows.sort { show1, show2 in
+                let year1 = self.getRelevantYear(for: show1)
+                let year2 = self.getRelevantYear(for: show2)
+                return year1 > year2
+            }
+        case .dateAdded:
+            break
         }
     }
     
@@ -129,5 +169,13 @@ extension HistoryViewModel {
             filterOption = .custom(text)
         }
         applyFilterAndSort()
+    }
+    
+    private func getRelevantYear(for show: Show) -> Int {
+        if let releaseYear = show.releaseYear {
+            return releaseYear
+        }
+        
+        return show.firstAirYear ?? 1970
     }
 }
