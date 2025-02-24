@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
-    @State private var searchText = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -41,6 +40,7 @@ struct SearchView: View {
                         VStack {
                             Text(category.rawValue)
                                 .foregroundColor(viewModel.selectedCategory == category ? .red : .white)
+                                .fontWeight(viewModel.selectedCategory == category ? .bold : .regular)
                             
                             if viewModel.selectedCategory == category {
                                 Rectangle()
