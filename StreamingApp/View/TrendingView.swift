@@ -9,7 +9,8 @@ import SwiftUI
 
 struct TrendingView: View {
     @StateObject private var viewModel = TrendingViewModel()
-    
+    @State private var showingSuggestView = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -20,8 +21,7 @@ struct TrendingView: View {
                     Text("Everywhere")
                         .foregroundStyle(.white)
                 }
-                .font(.largeTitle)
-                .bold()
+                .font(.largeTitle.bold())
                 .padding(.horizontal)
                 
                 // MARK: - Continue Watching Card
@@ -29,11 +29,30 @@ struct TrendingView: View {
                     .padding(.horizontal)
                 
                 // MARK: - Trending
-                Text("Trending")
-                    .font(.title)
-                    .bold()
-                    .foregroundStyle(.white)
-                    .padding(.horizontal)
+                HStack {
+                    Text("Trending")
+                        .font(.title)
+                        .bold()
+                        .foregroundStyle(.white)
+                        .padding(.horizontal)
+                    
+                    Spacer()
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Swipe to find your next stream")
+                                .font(.subheadline)
+                                .foregroundStyle(.gray)
+                        }
+                        Button {
+                            showingSuggestView = true
+                        } label: {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                    .padding()
+                }
                 
                 // MARK: - Trending Shows ScrollView
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -51,6 +70,9 @@ struct TrendingView: View {
         .task {
 //            viewModel.loadMockData()
             await viewModel.loadTrendingShowsData()
+        }
+        .sheet(isPresented: $showingSuggestView) {
+            SwipeableCardsView()
         }
     }
 }
